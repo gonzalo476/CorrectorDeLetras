@@ -1,5 +1,6 @@
-from qtpy import QtWidgets, QtCore
-from typing import Literal, Optional
+from qtpy import QtWidgets, QtCore, QtGui
+from typing import Literal, Optional, Union
+import os
 from config.colors import AppleColors
 
 
@@ -11,6 +12,8 @@ class Button(QtWidgets.QPushButton):
         type: Literal["filled", "text"] = "filled",
         size: Literal["small", "medium", "large"] = "small",
         full_width: bool = False,
+        icon: Optional[Union[QtGui.QIcon, str]] = None,
+        icon_size: Optional[QtCore.QSize] = None,
         parent: Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(text, parent)
@@ -20,8 +23,87 @@ class Button(QtWidgets.QPushButton):
         self.full_width = full_width
         self.type = type
 
+        self._loading = False
+        self._saved_icon = None
+        self._saved_text = text
+        self._loading_movie = None
+
+        if icon is not None:
+            self._set_icon(icon, icon_size)
+
         self._set_style()
         self._set_size()
+
+    def set_loading(
+        self, value: bool, spinner_path: str = None, spinner_size: int = 16
+    ):
+        if spinner_path is None:
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            spinner_path = os.path.join(project_root, "resources", "gif", "spin.gif")
+
+        if value and not self._loading:
+            self._loading = True
+            self._saved_text = self.text()
+            self._saved_icon = self.icon()
+
+            self.setText("")
+            self.setIconSize(QtCore.QSize(spinner_size, spinner_size))
+
+            self._loading_movie = QtGui.QMovie(spinner_path)
+            if self._loading_movie.isValid():
+                self._loading_movie.frameChanged.connect(self._update_spinner_frame)
+                self._loading_movie.start()
+                # Forzar el primer frame
+                self._update_spinner_frame()
+            else:
+                print(f"Error: No se pudo cargar el GIF en: {spinner_path}")
+                print(
+                    f"Verificar que el archivo exista en: {os.path.abspath(spinner_path)}"
+                )
+            self.blockSignals(True)
+
+        elif not value and self._loading:
+            self._loading = False
+
+            if self._loading_movie:
+                try:
+                    self._loading_movie.frameChanged.disconnect(
+                        self._update_spinner_frame
+                    )
+                except RuntimeError:
+                    pass
+                self._loading_movie.stop()
+                self._loading_movie = None
+
+            self.setIcon(self._saved_icon if self._saved_icon else QtGui.QIcon())
+            self.setText(self._saved_text)
+
+            self.blockSignals(False)
+
+    def _update_spinner_frame(self):
+        """Actualiza el icono del botón con el frame actual del GIF."""
+        if not self._loading or not self._loading_movie:
+            return
+        pixmap = self._loading_movie.currentPixmap()
+        if not pixmap.isNull():
+            self.setIcon(QtGui.QIcon(pixmap))
+
+    def _set_icon(
+        self, icon: Union[QtGui.QIcon, str], icon_size: Optional[QtCore.QSize] = None
+    ):
+        if isinstance(icon, str):
+            q_icon = QtGui.QIcon(icon)
+        else:
+            q_icon = icon
+
+        self.setIcon(q_icon)
+
+        if icon_size is None:
+            sizes_map = {"small": 16, "medium": 20, "large": 24}
+            icon_pixel_size = sizes_map.get(self.size, 20)
+            icon_size = QtCore.QSize(icon_pixel_size, icon_pixel_size)
+
+        self.setIconSize(icon_size)
 
     def _set_style(self):
         colors = {
@@ -93,12 +175,10 @@ class Button(QtWidgets.QPushButton):
         """
 
         style = filed_style if self.type == "filled" else text_style
-
         self.setStyleSheet(style)
 
     def _set_size(self):
         sizes = {"small": (80, 32, 12), "medium": (120, 44, 14), "large": (160, 52, 16)}
-
         min_width, height, font_size = sizes.get(self.size, sizes["medium"])
 
         current_style = self.styleSheet()
@@ -122,3 +202,8 @@ class Button(QtWidgets.QPushButton):
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed
             )
             self.adjustSize()
+
+    def set_icon(
+        self, icon: Union[QtGui.QIcon, str], icon_size: Optional[QtCore.QSize] = None
+    ):
+        self._set_icon(icon, icon_size)

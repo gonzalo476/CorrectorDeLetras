@@ -1,13 +1,15 @@
 from qtpy import QtWidgets
 
+from components.dialog import InfoMessage, SuccessMessage
 from controllers.main_controller import SongCorrectionController
 from components.button import Button
+from components.spinner import SpinnerDialog
 
 
 class MainView(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-
+        self.correct_song = SongCorrectionController(view=self)
         self.setWindowTitle("Corrector De Letras")
         self.setMinimumSize(500, 600)
 
@@ -17,16 +19,32 @@ class MainView(QtWidgets.QWidget):
         main_layout.setSpacing(10)
         self.setLayout(main_layout)
 
+        # actions button layout
+        button_actions_layout = QtWidgets.QHBoxLayout()
+
         # editor layout
         editor_layout = QtWidgets.QHBoxLayout()
 
         # options tools layout
         tools_layout = QtWidgets.QHBoxLayout()
 
-        # checkbox options
+        # checkbox uppercase
         self.set_uppercase_box = QtWidgets.QCheckBox()
+        self.set_uppercase_box.setObjectName("set_uppercase_box")
         self.set_uppercase_box.setText("Mayúscula")
         self.set_uppercase_box.setChecked(True)
+
+        # checkbox divide
+        self.set_divide_box = QtWidgets.QCheckBox()
+        self.set_divide_box.setObjectName("set_divide_box")
+        self.set_divide_box.setText("Dividir En Secciones")
+        self.set_divide_box.setChecked(True)
+
+        # checkbox repeated words
+        self.set_reduce_box = QtWidgets.QCheckBox()
+        self.set_reduce_box.setObjectName("set_reduce_box")
+        self.set_reduce_box.setText("Reducir")
+        self.set_reduce_box.setChecked(True)
 
         # original
         self.original_txt = QtWidgets.QTextEdit()
@@ -39,18 +57,29 @@ class MainView(QtWidgets.QWidget):
         self.corrected_txt.setPlaceholderText("")
 
         # button
+        self.delete_btn = Button(text="Eliminar", variant="danger")
         self.correct_btn = Button(text="Corregir")
         self.copy_corrected_btn = Button(
-            text="Copiar Letra Corregida", type="text", variant="secondary"
+            text="Copiar Letra Corregida",
+            type="text",
+            variant="secondary",
+            icon="./resources/icons/clipboard_white.svg",
         )
+
+        # actions button layout
+        button_actions_layout.addWidget(self.delete_btn)
+        button_actions_layout.addWidget(self.correct_btn)
 
         # connects
         self.copy_corrected_btn.clicked.connect(self.handle_copy)
         self.correct_btn.clicked.connect(self.handle_correct)
+        self.delete_btn.clicked.connect(self.handle_delete)
 
         # tools layout
         tools_layout.addStretch()
         tools_layout.addWidget(self.set_uppercase_box)
+        tools_layout.addWidget(self.set_reduce_box)
+        tools_layout.addWidget(self.set_divide_box)
         tools_layout.addStretch()
 
         # editor layout
@@ -60,15 +89,34 @@ class MainView(QtWidgets.QWidget):
         # main layout
         main_layout.addLayout(tools_layout)
         main_layout.addLayout(editor_layout)
-        main_layout.addWidget(self.correct_btn)
+        main_layout.addLayout(button_actions_layout)
         main_layout.addWidget(self.copy_corrected_btn)
 
     def handle_copy(self):
-        print("text copied..")
+        clipboard = QtWidgets.QApplication.clipboard()
+        text = self.corrected_txt.toPlainText()
+
+        if not text:
+            InfoMessage(msg="Ingresa una cancion para copiar").exec()
+            return
+        clipboard.setText(self.corrected_txt.toPlainText())
+        SuccessMessage(msg="Texto copiado al portapapeles correctamente").exec()
+
+    def handle_delete(self):
+        self.original_txt.setText("")
+        self.corrected_txt.setText("")
 
     def handle_correct(self):
-        self.correct_song = SongCorrectionController()
         self.corrected_txt.setText("")
+
         text = self.original_txt.toPlainText()
-        corrected_song = self.correct_song.correct_song(text)
-        self.corrected_txt.setText(corrected_song)
+        divide = self.set_divide_box.isChecked()
+        reduce = self.set_reduce_box.isChecked()
+        uppercase = self.set_uppercase_box.isChecked()
+
+        self.correct_song.correct_song(
+            text, divide=divide, reduce=reduce, uppercase=uppercase
+        )
+
+    def show_corrected_text(self, text: str):
+        self.corrected_txt.setText(text)

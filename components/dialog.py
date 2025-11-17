@@ -113,10 +113,9 @@ class SuccessMessage(QtWidgets.QDialog):
 
         self.setWindowTitle(title)
 
-        QBtn = QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
+        QBtn = QtWidgets.QDialogButtonBox.Ok
         self.btn_box = QtWidgets.QDialogButtonBox(QBtn)
         self.btn_box.accepted.connect(self.accept)
-        self.btn_box.rejected.connect(self.reject)
 
         icon_label = QtWidgets.QLabel()
         icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
