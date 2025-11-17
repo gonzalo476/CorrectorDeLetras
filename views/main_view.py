@@ -1,17 +1,21 @@
-from qtpy import QtWidgets
+from qtpy import QtWidgets, QtGui
 
 from components.dialog import InfoMessage, SuccessMessage
 from controllers.main_controller import SongCorrectionController
 from components.button import Button
-from components.spinner import SpinnerDialog
+
+from helpers.icon import IconHelper
+from helpers.copy import format_propresenter_text
 
 
 class MainView(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        self.window_icon = IconHelper.get_window_icon_path()
         self.correct_song = SongCorrectionController(view=self)
-        self.setWindowTitle("Corrector De Letras")
-        self.setMinimumSize(500, 600)
+        self.setWindowTitle("Corrector de letras")
+        self.setMinimumSize(700, 600)
+        self.setWindowIcon(QtGui.QIcon(str(self.window_icon)))
 
         # main layout
         main_layout = QtWidgets.QVBoxLayout()
@@ -27,6 +31,9 @@ class MainView(QtWidgets.QWidget):
 
         # options tools layout
         tools_layout = QtWidgets.QHBoxLayout()
+
+        # copy layout
+        copy_layout = QtWidgets.QHBoxLayout()
 
         # checkbox uppercase
         self.set_uppercase_box = QtWidgets.QCheckBox()
@@ -57,13 +64,20 @@ class MainView(QtWidgets.QWidget):
         self.corrected_txt.setPlaceholderText("")
 
         # button
+        self.icon_helper = IconHelper()
         self.delete_btn = Button(text="Eliminar", variant="danger")
         self.correct_btn = Button(text="Corregir")
         self.copy_corrected_btn = Button(
             text="Copiar Letra Corregida",
             type="text",
             variant="secondary",
-            icon="./resources/icons/clipboard_white.svg",
+            icon=self.icon_helper.get_icon(icon="copy.png"),
+        )
+        self.copy_to_propresenter_btn = Button(
+            text="Copiar para ProPresenter",
+            type="text",
+            variant="secondary",
+            icon=self.icon_helper.get_icon(icon="propresenter.png"),
         )
 
         # actions button layout
@@ -74,6 +88,7 @@ class MainView(QtWidgets.QWidget):
         self.copy_corrected_btn.clicked.connect(self.handle_copy)
         self.correct_btn.clicked.connect(self.handle_correct)
         self.delete_btn.clicked.connect(self.handle_delete)
+        self.copy_to_propresenter_btn.clicked.connect(self.handle_copy_to_propresenter)
 
         # tools layout
         tools_layout.addStretch()
@@ -86,11 +101,15 @@ class MainView(QtWidgets.QWidget):
         editor_layout.addWidget(self.original_txt)
         editor_layout.addWidget(self.corrected_txt)
 
+        # copy layout
+        copy_layout.addWidget(self.copy_corrected_btn)
+        copy_layout.addWidget(self.copy_to_propresenter_btn)
+
         # main layout
         main_layout.addLayout(tools_layout)
         main_layout.addLayout(editor_layout)
         main_layout.addLayout(button_actions_layout)
-        main_layout.addWidget(self.copy_corrected_btn)
+        main_layout.addLayout(copy_layout)
 
     def handle_copy(self):
         clipboard = QtWidgets.QApplication.clipboard()
@@ -99,7 +118,19 @@ class MainView(QtWidgets.QWidget):
         if not text:
             InfoMessage(msg="Ingresa una cancion para copiar").exec()
             return
-        clipboard.setText(self.corrected_txt.toPlainText())
+        clipboard.setText(text)
+        SuccessMessage(msg="Texto copiado al portapapeles correctamente").exec()
+
+    def handle_copy_to_propresenter(self):
+        clipboard = QtWidgets.QApplication.clipboard()
+        text = self.corrected_txt.toPlainText()
+
+        text_to_copy = format_propresenter_text(text=text)
+
+        if not text:
+            InfoMessage(msg="Ingresa una cancion para copiar").exec()
+            return
+        clipboard.setText(text_to_copy)
         SuccessMessage(msg="Texto copiado al portapapeles correctamente").exec()
 
     def handle_delete(self):
