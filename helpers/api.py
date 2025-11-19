@@ -7,7 +7,7 @@ def test_api_key(api_key: str) -> bool:
         client = genai.Client(api_key=api_key)
 
         client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-flash-latest",
             contents="ping",
             config=types.GenerateContentConfig(max_output_tokens=1, temperature=0.0),
         )

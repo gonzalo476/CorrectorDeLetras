@@ -14,7 +14,7 @@ class SongCorrectionService:
         self, text: str, divide: bool, reduce: bool, uppercase: bool
     ) -> Response:
 
-        divide_prompt = "Divide la letra en secciones musicales típicas así: //VERSO, //CORO, //PUENTE, etc."
+        divide_prompt = "Identifica y Divide la letra usando las siguientes secciones musicales: //INTRO, //VERSO, //PRE-CORO, //CORO, //POST-CORO, //PUENTE, //SPONTANEO, //OUTRO"
         reduce_prompt = "Analiza y elimina lineas extra que se repiten con frecuencia ya sea el verso, coro o puente."
 
         prompt = f"""
@@ -35,7 +35,7 @@ class SongCorrectionService:
 
         try:
             response = self.client.models.generate_content(
-                model="gemini-2.0-flash", contents=prompt
+                model="gemini-flash-latest", contents=prompt
             )
             data = response.text.upper() if uppercase == True else response.text
             return Response(True, data)
