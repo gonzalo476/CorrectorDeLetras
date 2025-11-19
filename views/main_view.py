@@ -1,11 +1,14 @@
 from qtpy import QtWidgets, QtGui
 
-from components.dialog import InfoMessage, SuccessMessage
 from controllers.main_controller import SongCorrectionController
+
 from components.button import Button
+from components.dialog import InfoMessage, SuccessMessage
 
 from helpers.icon import IconHelper
 from helpers.copy import format_propresenter_text
+
+from controllers.service_controller import ServiceController
 
 
 class MainView(QtWidgets.QWidget):
@@ -13,6 +16,11 @@ class MainView(QtWidgets.QWidget):
         super().__init__()
         self.window_icon = IconHelper.get_window_icon_path()
         self.correct_song = SongCorrectionController(view=self)
+
+        # services
+        self.services = ServiceController()
+
+        # window configs
         self.setWindowTitle("Corrector de letras")
         self.setMinimumSize(700, 600)
         self.setWindowIcon(QtGui.QIcon(str(self.window_icon)))
@@ -139,6 +147,8 @@ class MainView(QtWidgets.QWidget):
 
     def handle_correct(self):
         self.corrected_txt.setText("")
+
+        self.services.validate_key()
 
         text = self.original_txt.toPlainText()
         divide = self.set_divide_box.isChecked()

@@ -1,12 +1,14 @@
 from google import genai
 from models.response import Response
 
-API_KEY = "AIzaSyB8599YPiFTE6ErbGNJP_1Yj-Y0tpujW7U"
+from services.settings_service import SettingsService
 
 
 class SongCorrectionService:
     def __init__(self):
-        self.client = genai.Client(api_key=API_KEY)
+        self.settings = SettingsService()
+        self.api_key = self.settings.load_api_key()
+        self.client = genai.Client(api_key=self.api_key)
 
     def correct(
         self, text: str, divide: bool, reduce: bool, uppercase: bool
