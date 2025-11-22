@@ -1,33 +1,54 @@
-# db
-*.db
-*.sqlite
-*.sqlite3
-
-# python
+# Archivos generados de Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-env/
+
+# Entorno virtual
 venv/
-ENV/
-.venv
+.env/
+*.env
+.venv/
 
-# ide
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Configuración de dependencias
+pip-log.txt
+pip-delete-this-directory.txt
 
-# os
+# Archivos de logs
+logs/
+*.log
+
+# Archivos de compilación de C/C++
+*.so
+*.o
+*.a
+*.pyc
+*.pyd
+
+# Archivos de interfaz gráfica de PySide
+/gui/ui/*.py
+/gui/ui/*.pyc
+/gui/ui/__pycache__/
+
+# Configuración de PySide6 Designer y Qt
+*.qrc
+*.qmlc
+
+# Archivos de caché y temporales
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
 
-# config
-.env
-config.ini
+# Configuración de IDEs
+.vscode/
+.idea/
+*.iml
 
-# logs
-*.log
+# Archivos de Maya y Nuke temporales
+/workspaces/
+/nuke_temp/
+/maya_temp/
+
+# Archivos compilados de PyInstaller
+/dist/
+/build/
+*.spec
