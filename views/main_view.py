@@ -9,6 +9,7 @@ from helpers.icon import IconHelper
 from helpers.copy import format_propresenter_text
 
 from controllers.service_controller import ServiceController
+from config.colors import UIColors
 
 
 class MainView(QtWidgets.QWidget):
@@ -23,6 +24,9 @@ class MainView(QtWidgets.QWidget):
         # window configs
         self.setWindowTitle("Corrector de letras")
         self.setMinimumSize(700, 600)
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), QtGui.QColor(UIColors.BG_DARK))
+        self.setPalette(palette)
         self.setWindowIcon(QtGui.QIcon(str(self.window_icon)))
 
         # main layout
@@ -65,11 +69,27 @@ class MainView(QtWidgets.QWidget):
         self.original_txt = QtWidgets.QTextEdit()
         self.original_txt.setObjectName("original_txt")
         self.original_txt.setPlaceholderText("Pega el texto de la cancion aquí..")
+        self.original_txt.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: #212426;
+                color: white;                        
+            }
+        """
+        )
 
         # corrected
         self.corrected_txt = QtWidgets.QTextEdit()
         self.corrected_txt.setObjectName("corrected_txt")
         self.corrected_txt.setPlaceholderText("")
+        self.corrected_txt.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: #212426;
+                color: white;                        
+            }
+        """
+        )
 
         # button
         self.icon_helper = IconHelper()

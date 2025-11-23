@@ -1,3 +1,8 @@
+class UIColors:
+    BG_DARK = "#181C1F"
+    BG_DARK_LIGHT = "#1D2328"
+
+
 class AppleColors:
     """Colores de Apple en formato hexadecimal"""
 
