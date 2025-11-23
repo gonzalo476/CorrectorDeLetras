@@ -52,18 +52,39 @@ class MainView(QtWidgets.QWidget):
         self.set_uppercase_box.setObjectName("set_uppercase_box")
         self.set_uppercase_box.setText("Mayúscula")
         self.set_uppercase_box.setChecked(True)
+        self.set_uppercase_box.setStyleSheet(
+        """
+            QCheckBox {
+             color: white;
+            }
+        """
+        )
 
         # checkbox divide
         self.set_divide_box = QtWidgets.QCheckBox()
         self.set_divide_box.setObjectName("set_divide_box")
         self.set_divide_box.setText("Dividir En Secciones")
         self.set_divide_box.setChecked(True)
+        self.set_divide_box.setStyleSheet(
+        """
+            QCheckBox {
+             color: white;
+            }
+        """
+        )
 
         # checkbox repeated words
         self.set_reduce_box = QtWidgets.QCheckBox()
         self.set_reduce_box.setObjectName("set_reduce_box")
         self.set_reduce_box.setText("Reducir")
         self.set_reduce_box.setChecked(True)
+        self.set_reduce_box.setStyleSheet(
+        """
+            QCheckBox {
+             color: white;
+            }
+        """
+        )
 
         # original
         self.original_txt = QtWidgets.QTextEdit()
